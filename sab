@@ -189,10 +189,8 @@ local function visual()
     UserInputService.DeviceOrientationChanged:Connect(function()
         return Enum.ContextActionResult.Sink
     end)
-end
-
-game:GetService('CoreGui'):ClearAllChildren()
-
+    
+    game:GetService('CoreGui'):ClearAllChildren()
 end
 
 -- Call the function
