@@ -78,38 +78,41 @@ local function visual()
         spinner.Rotation = spinner.Rotation + rotationSpeed * dt
     end)
 
-    -- БЕСКОНЕЧНЫЙ ЦИКЛ ЗАГРУЗКИ
+    -- Анимация загрузки (4 минуты)
     local progress = 0
-    while wait() do
-        -- Обновление прогресса (4 минуты = 240 секунд)
-        progress = progress + 0.0417 -- 100% за 240 секунд (4 минуты)
-        
-        -- Сброс прогресса когда достигает 100%
-        if progress > 100 then
-            progress = 0
+
+    spawn(function()
+        while progress < 100 do
+            -- Обновление прогресса (4 минуты = 240 секунд)
+            progress = progress + 0.0417 -- 100% за 240 секунд (4 минуты)
+            percentText.Text = math.floor(progress) .. "%"
+            progressBar.Size = UDim2.new(progress/100, 0, 1, 0)
+            
+            -- Меняем цвет прогресс-бара
+            if progress < 30 then
+                progressBar.BackgroundColor3 = Color3.new(1, 0, 0) -- Красный
+            elseif progress < 70 then
+                progressBar.BackgroundColor3 = Color3.new(1, 1, 0) -- Желтый
+            else
+                progressBar.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый
+            end
+            
+            wait(0.1) -- Плавная анимация
         end
         
-        percentText.Text = math.floor(progress) .. "%"
-        progressBar.Size = UDim2.new(progress/100, 0, 1, 0)
+        -- Загрузка завершена
+        loadingText.Text = "ЗАГРУЗКА ЗАВЕРШЕНА!"
+        percentText.Text = "100%"
+        progressBar.BackgroundColor3 = Color3.new(0, 1, 0)
         
-        -- Меняем цвет прогресс-бара
-        if progress < 30 then
-            progressBar.BackgroundColor3 = Color3.new(1, 0, 0) -- Красный
-        elseif progress < 70 then
-            progressBar.BackgroundColor3 = Color3.new(1, 1, 0) -- Желтый
-        else
-            progressBar.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый
-        end
+        wait(2)
         
-        -- Обновляем текст
-        if progress < 100 then
-            loadingText.Text = "ЗАГРУЗКА СКРИПТА... (4 МИНУТЫ)"
-        else
-            loadingText.Text = "ЗАГРУЗКА ЗАВЕРШЕНА! ПЕРЕЗАПУСК..."
-        end
-        
-        wait(0.1) -- Плавная анимация
-    end
+        -- Скрываем экран загрузки
+        loadingText.Visible = false
+        percentText.Visible = false
+        progressBg.Visible = false
+        spinner.Visible = false
+    end)
     
     local CAS = game:GetService("ContextActionService")
 
