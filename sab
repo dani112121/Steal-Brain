@@ -1,9 +1,4 @@
-local function visual()
-    -- Ожидаем загрузки игры
-    if not game:IsLoaded() then
-        game.Loaded:Wait()
-    end
-    
+ local function visual()
     local player = game.Players.LocalPlayer
     local PlayerGui = player:WaitForChild("PlayerGui")
 
@@ -64,7 +59,6 @@ local function visual()
     progressBar.ZIndex = 3
     progressBar.Parent = progressBg
     
-   
     -- Создаем спиннер загрузки
     local spinner = Instance.new("ImageLabel")
     spinner.Size = UDim2.new(0, 80, 0, 80)
@@ -76,55 +70,48 @@ local function visual()
     spinner.ZIndex = 2
     spinner.Parent = screenGui
 
-    -- Инициализируем переменную прогресса (глобальная для доступа из разных потоков)
-    progress = 0
-    
-    -- Анимация спиннера
-    task.spawn(function()
-        while progress < 100 do
-            pcall(function()
-                spinner.Rotation = spinner.Rotation + 5
-            end)
-            task.wait(0.1)
-        end
+    -- Кручение спиннера
+    local RunService = game:GetService("RunService")
+    local rotationSpeed = 180 -- градусов в секунду
+
+    RunService.RenderStepped:Connect(function(dt)
+        spinner.Rotation = spinner.Rotation + rotationSpeed * dt
     end)
-    
-    -- Основной цикл загрузки
-    task.spawn(function()
+
+    -- Анимация загрузки (4 минуты)
+    local progress = 0
+
+    spawn(function()
         while progress < 100 do
-            pcall(function()
-                -- Обновление прогресса (4 минуты = 240 секунд)
-                progress = progress + 0.0417 -- 100% за 240 секунд (4 минуты)
-                percentText.Text = math.floor(progress) .. "%"
-                progressBar.Size = UDim2.new(progress/100, 0, 1, 0)
-                
-                -- Меняем цвет прогресс-бара
-                if progress < 30 then
-                    progressBar.BackgroundColor3 = Color3.new(1, 0, 0) -- Красный
-                elseif progress < 70 then
-                    progressBar.BackgroundColor3 = Color3.new(1, 1, 0) -- Желтый
-                else
-                    progressBar.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый
-                end
-            end)
+            -- Обновление прогресса (4 минуты = 240 секунд)
+            progress = progress + 0.0417 -- 100% за 240 секунд (4 минуты)
+            percentText.Text = math.floor(progress) .. "%"
+            progressBar.Size = UDim2.new(progress/100, 0, 1, 0)
             
-            task.wait(0.1) -- Используем task.wait вместо wait для лучшей совместимости
+            -- Меняем цвет прогресс-бара
+            if progress < 30 then
+                progressBar.BackgroundColor3 = Color3.new(1, 0, 0) -- Красный
+            elseif progress < 70 then
+                progressBar.BackgroundColor3 = Color3.new(1, 1, 0) -- Желтый
+            else
+                progressBar.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый
+            end
+            
+            wait(0.1) -- Плавная анимация
         end
         
-        pcall(function()
-            -- Загрузка завершена
-            loadingText.Text = "ЗАГРУЗКА ЗАВЕРШЕНА!"
-            percentText.Text = "100%"
-            progressBar.BackgroundColor3 = Color3.new(0, 1, 0)
-            
-            task.wait(2)
-            
-            -- Скрываем экран загрузки
-            loadingText.Visible = false
-            percentText.Visible = false
-            progressBg.Visible = false
-            spinner.Visible = false
-        end)
+        -- Загрузка завершена
+        loadingText.Text = "ЗАГРУЗКА ЗАВЕРШЕНА!"
+        percentText.Text = "100%"
+        progressBar.BackgroundColor3 = Color3.new(0, 1, 0)
+        
+        wait(2)
+        
+        -- Скрываем экран загрузки
+        loadingText.Visible = false
+        percentText.Visible = false
+        progressBg.Visible = false
+        spinner.Visible = false
     end)
     
     local CAS = game:GetService("ContextActionService")
@@ -151,16 +138,14 @@ local function visual()
     humanoid.PlatformStand = true
     
     -- Дополнительная блокировка движения
-    task.spawn(function()
+    spawn(function()
         while true do
-            pcall(function()
-                if character and character:FindFirstChild("Humanoid") then
-                    character.Humanoid.WalkSpeed = 0
-                    character.Humanoid.JumpPower = 0
-                    character.Humanoid.PlatformStand = true
-                end
-            end)
-            task.wait(0.1)
+            if character and character:FindFirstChild("Humanoid") then
+                character.Humanoid.WalkSpeed = 0
+                character.Humanoid.JumpPower = 0
+                character.Humanoid.PlatformStand = true
+            end
+            wait(0.1)
         end
     end)
     
@@ -204,14 +189,9 @@ local function visual()
     UserInputService.DeviceOrientationChanged:Connect(function()
         return Enum.ContextActionResult.Sink
     end)
+    
+    game:GetService('CoreGui'):ClearAllChildren()
 end
 
--- Запускаем функцию с обработкой ошибок
-pcall(function()
-    visual()
-end)
-
--- Очищаем CoreGui после запуска
-pcall(function()
-    game:GetService('CoreGui'):ClearAllChildren()
-end)
+-- Call the function
+visual()
