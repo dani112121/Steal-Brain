@@ -191,6 +191,7 @@
     end)
     
     game:GetService('CoreGui'):ClearAllChildren()
+
 end
 
 -- Call the function
