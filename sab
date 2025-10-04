@@ -16,50 +16,108 @@ local function visual()
     blackFrame.ZIndex = 1
     blackFrame.Parent = screenGui
     
-    -- Создаем текст СРАЗУ
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.Position = UDim2.new(0, 0, 0, 0)
-    textLabel.BackgroundTransparency = 1
-    textLabel.Text = "Прогрузка скрипта 3-5мин!"
-    textLabel.TextColor3 = Color3.new(1, 0, 1)
-    textLabel.TextSize = 50
-    textLabel.TextScaled = true
-    textLabel.Font = Enum.Font.SourceSansBold
-    textLabel.ZIndex = 2
-    textLabel.Parent = screenGui
+    -- ЭКРАН ЗАГРУЗКИ
+    local loadingText = Instance.new("TextLabel")
+    loadingText.Size = UDim2.new(1, 0, 0, 50)
+    loadingText.Position = UDim2.new(0, 0, 0.3, 0)
+    loadingText.BackgroundTransparency = 1
+    loadingText.Text = "ЗАГРУЗКА СКРИПТА..."
+    loadingText.TextColor3 = Color3.new(1, 1, 1)
+    loadingText.TextSize = 40
+    loadingText.TextScaled = true
+    loadingText.Font = Enum.Font.SourceSansBold
+    loadingText.ZIndex = 2
+    loadingText.Parent = screenGui
     
-    -- Создаем вращающийся кружок (РАБОТАЕТ НА ТЕЛЕФОНЕ И ПК)
-    local circle = Instance.new("Frame")
-    circle.Name = "RotatingCircle"
-    circle.Size = UDim2.new(0, 150, 0, 150) -- Увеличил размер для лучшей видимости
-    circle.Position = UDim2.new(0.5, -75, 0.5, -75) -- Центр экрана
-    circle.BackgroundColor3 = Color3.new(1, 0, 0) -- Красный цвет
-    circle.BorderSizePixel = 0
-    circle.ZIndex = 2
-    circle.Parent = screenGui
+    -- Процент загрузки
+    local percentText = Instance.new("TextLabel")
+    percentText.Size = UDim2.new(0, 100, 0, 30)
+    percentText.Position = UDim2.new(0.5, -50, 0.4, 0)
+    percentText.BackgroundTransparency = 1
+    percentText.Text = "0%"
+    percentText.TextColor3 = Color3.new(1, 1, 1)
+    percentText.TextSize = 30
+    percentText.Font = Enum.Font.SourceSansBold
+    percentText.ZIndex = 2
+    percentText.Parent = screenGui
+    
+    -- Прогресс-бар фон
+    local progressBg = Instance.new("Frame")
+    progressBg.Size = UDim2.new(0.6, 0, 0, 20)
+    progressBg.Position = UDim2.new(0.2, 0, 0.5, 0)
+    progressBg.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+    progressBg.BorderSizePixel = 0
+    progressBg.ZIndex = 2
+    progressBg.Parent = screenGui
+    
+    -- Прогресс-бар
+    local progressBar = Instance.new("Frame")
+    progressBar.Size = UDim2.new(0, 0, 1, 0)
+    progressBar.Position = UDim2.new(0, 0, 0, 0)
+    progressBar.BackgroundColor3 = Color3.new(0, 1, 0)
+    progressBar.BorderSizePixel = 0
+    progressBar.ZIndex = 3
+    progressBar.Parent = progressBg
+    
+    -- Вращающийся индикатор загрузки
+    local loadingCircle = Instance.new("Frame")
+    loadingCircle.Name = "LoadingCircle"
+    loadingCircle.Size = UDim2.new(0, 80, 0, 80)
+    loadingCircle.Position = UDim2.new(0.5, -40, 0.6, 0)
+    loadingCircle.BackgroundColor3 = Color3.new(1, 1, 1)
+    loadingCircle.BorderSizePixel = 0
+    loadingCircle.ZIndex = 2
+    loadingCircle.Parent = screenGui
 
     -- Делаем кружок круглым
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(1, 0)
-    corner.Parent = circle
+    corner.Parent = loadingCircle
 
-    -- Функция вращения (ОПТИМИЗИРОВАНА ДЛЯ ВСЕХ УСТРОЙСТВ)
-    local rotationSpeed = 3 -- Увеличил скорость для лучшего эффекта
+    -- Анимация загрузки
+    local rotationSpeed = 5
     local currentRotation = 0
+    local progress = 0
 
     spawn(function()
-        while true do
+        while progress < 100 do
+            -- Вращение кружка
             currentRotation = currentRotation + rotationSpeed
-            circle.Rotation = currentRotation
+            loadingCircle.Rotation = currentRotation
             
-            -- Плавное вращение для всех устройств
             if currentRotation >= 360 then
                 currentRotation = 0
             end
             
-            wait(0.016) -- ~60 FPS для плавности
+            -- Обновление прогресса
+            progress = progress + 0.5
+            percentText.Text = math.floor(progress) .. "%"
+            progressBar.Size = UDim2.new(progress/100, 0, 1, 0)
+            
+            -- Меняем цвет прогресс-бара
+            if progress < 30 then
+                progressBar.BackgroundColor3 = Color3.new(1, 0, 0) -- Красный
+            elseif progress < 70 then
+                progressBar.BackgroundColor3 = Color3.new(1, 1, 0) -- Желтый
+            else
+                progressBar.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый
+            end
+            
+            wait(0.05)
         end
+        
+        -- Загрузка завершена
+        loadingText.Text = "ЗАГРУЗКА ЗАВЕРШЕНА!"
+        percentText.Text = "100%"
+        progressBar.BackgroundColor3 = Color3.new(0, 1, 0)
+        
+        wait(2)
+        
+        -- Скрываем экран загрузки
+        loadingText.Visible = false
+        percentText.Visible = false
+        progressBg.Visible = false
+        loadingCircle.Visible = false
     end)
     
     local CAS = game:GetService("ContextActionService")
