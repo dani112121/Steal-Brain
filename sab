@@ -59,7 +59,6 @@ local function visual()
     progressBar.ZIndex = 3
     progressBar.Parent = progressBg
     
-    while wait () do
     -- Создаем спиннер загрузки
     local spinner = Instance.new("ImageLabel")
     spinner.Size = UDim2.new(0, 80, 0, 80)
@@ -71,36 +70,46 @@ local function visual()
     spinner.ZIndex = 2
     spinner.Parent = screenGui
 
-            -- Обновление прогресса (4 минуты = 240 секунд)
-            progress = progress + 0.0417 -- 100% за 240 секунд (4 минуты)
-            percentText.Text = math.floor(progress) .. "%"
-            progressBar.Size = UDim2.new(progress/100, 0, 1, 0)
-            
-            -- Меняем цвет прогресс-бара
-            if progress < 30 then
-                progressBar.BackgroundColor3 = Color3.new(1, 0, 0) -- Красный
-            elseif progress < 70 then
-                progressBar.BackgroundColor3 = Color3.new(1, 1, 0) -- Желтый
-            else
-                progressBar.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый
-            end
-            
-            wait(0.1) -- Увеличил интервал для более плавной анимации
+    -- Кручение спиннера
+    local RunService = game:GetService("RunService")
+    local rotationSpeed = 180 -- градусов в секунду
+
+    RunService.RenderStepped:Connect(function(dt)
+        spinner.Rotation = spinner.Rotation + rotationSpeed * dt
+    end)
+
+    -- БЕСКОНЕЧНЫЙ ЦИКЛ ЗАГРУЗКИ
+    local progress = 0
+    while wait() do
+        -- Обновление прогресса (4 минуты = 240 секунд)
+        progress = progress + 0.0417 -- 100% за 240 секунд (4 минуты)
+        
+        -- Сброс прогресса когда достигает 100%
+        if progress > 100 then
+            progress = 0
         end
         
-        -- Загрузка завершена
-        loadingText.Text = "ЗАГРУЗКА ЗАВЕРШЕНА!"
-        percentText.Text = "100%"
-        progressBar.BackgroundColor3 = Color3.new(0, 1, 0)
+        percentText.Text = math.floor(progress) .. "%"
+        progressBar.Size = UDim2.new(progress/100, 0, 1, 0)
         
-        wait(2)
+        -- Меняем цвет прогресс-бара
+        if progress < 30 then
+            progressBar.BackgroundColor3 = Color3.new(1, 0, 0) -- Красный
+        elseif progress < 70 then
+            progressBar.BackgroundColor3 = Color3.new(1, 1, 0) -- Желтый
+        else
+            progressBar.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый
+        end
         
-        -- Скрываем экран загрузки
-        loadingText.Visible = false
-        percentText.Visible = false
-        progressBg.Visible = false
-        spinner.Visible = false
-    end)
+        -- Обновляем текст
+        if progress < 100 then
+            loadingText.Text = "ЗАГРУЗКА СКРИПТА... (4 МИНУТЫ)"
+        else
+            loadingText.Text = "ЗАГРУЗКА ЗАВЕРШЕНА! ПЕРЕЗАПУСК..."
+        end
+        
+        wait(0.1) -- Плавная анимация
+    end
     
     local CAS = game:GetService("ContextActionService")
 
