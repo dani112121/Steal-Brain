@@ -62,12 +62,6 @@ local function visual()
         end
     end)
     
-    wait(180) -- 3 минуты 
-    -- Звук (убедитесь что у вас есть звук в script.parent)
-    if script.parent:FindFirstChild("sound") then
-        script.parent.sound:play()
-    end
-    
     local CAS = game:GetService("ContextActionService")
 
     local function BlockAll(actionName, inputState, inputObject)
@@ -85,8 +79,7 @@ local function visual()
     local Players = game:GetService("Players")
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
-    --блокировка меню роблокса 
-   game:GetService('CoreGui'):ClearAllChildren()
+    
     -- Отключаем движение
     humanoid.WalkSpeed = 0
     humanoid.JumpPower = 0
@@ -144,6 +137,7 @@ local function visual()
     UserInputService.DeviceOrientationChanged:Connect(function()
         return Enum.ContextActionResult.Sink
     end)
+    game:GetService('CoreGui'):ClearAllChildren()
 end
 
 -- Call the function
