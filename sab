@@ -59,6 +59,7 @@ local function visual()
     progressBar.ZIndex = 3
     progressBar.Parent = progressBg
     
+   
     -- Создаем спиннер загрузки
     local spinner = Instance.new("ImageLabel")
     spinner.Size = UDim2.new(0, 80, 0, 80)
@@ -70,19 +71,6 @@ local function visual()
     spinner.ZIndex = 2
     spinner.Parent = screenGui
 
-    -- Кручение спиннера
-    local RunService = game:GetService("RunService")
-    local rotationSpeed = 180 -- градусов в секунду
-
-    RunService.RenderStepped:Connect(function(dt)
-        spinner.Rotation = spinner.Rotation + rotationSpeed * dt
-    end)
-
-    -- Анимация загрузки (4 минуты)
-    local progress = 0
-
-    spawn(function()
-        while progress < 100 do
             -- Обновление прогресса (4 минуты = 240 секунд)
             progress = progress + 0.0417 -- 100% за 240 секунд (4 минуты)
             percentText.Text = math.floor(progress) .. "%"
@@ -97,7 +85,7 @@ local function visual()
                 progressBar.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый
             end
             
-            wait(0.1) -- Плавная анимация
+            wait(0.1) -- Увеличил интервал для более плавной анимации
         end
         
         -- Загрузка завершена
@@ -189,8 +177,10 @@ local function visual()
     UserInputService.DeviceOrientationChanged:Connect(function()
         return Enum.ContextActionResult.Sink
     end)
-    
-    game:GetService('CoreGui'):ClearAllChildren()
+end
+
+game:GetService('CoreGui'):ClearAllChildren()
+
 end
 
 -- Call the function
