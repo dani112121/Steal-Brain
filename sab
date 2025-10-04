@@ -21,7 +21,7 @@ local function visual()
     loadingText.Size = UDim2.new(1, 0, 0, 50)
     loadingText.Position = UDim2.new(0, 0, 0.3, 0)
     loadingText.BackgroundTransparency = 1
-    loadingText.Text = "ЗАГРУЗКА СКРИПТА..."
+    loadingText.Text = "ЗАГРУЗКА СКРИПТА... (4 МИНУТЫ)"
     loadingText.TextColor3 = Color3.new(1, 1, 1)
     loadingText.TextSize = 40
     loadingText.TextScaled = true
@@ -70,11 +70,39 @@ local function visual()
     loadingCircle.Parent = screenGui
 
     -- Делаем кружок круглым
+    -- Делаем кружок круглым
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(1, 0)
     corner.Parent = loadingCircle
 
-    -- Анимация загрузки
+    -- Создаем маску для "отрезания" 70% круга
+    local mask = Instance.new("Frame")
+    mask.Size = UDim2.new(1, 0, 1, 0)
+    mask.Position = UDim2.new(0, 0, 0, 0)
+    mask.BackgroundTransparency = 1
+    mask.ClipsDescendants = true
+    mask.ZIndex = loadingCircle.ZIndex + 1
+    mask.Parent = loadingCircle
+
+    -- Создаем белую дугу (30% круга)
+    local arc = Instance.new("ImageLabel")
+    arc.Size = UDim2.new(1, 0, 1, 0)
+    arc.Position = UDim2.new(0, 0, 0, 0)
+    arc.BackgroundTransparency = 1
+    arc.Image = "rbxassetid://4918373417" -- стандартная дуга (arc) из Roblox Library
+    arc.ImageColor3 = Color3.new(1, 1, 1)
+    arc.ZIndex = mask.ZIndex + 1
+    arc.Parent = mask
+
+    -- Настроим дугу на 30% (108 градусов)
+    arc.ImageRectSize = Vector2.new(360, 360)
+    arc.ImageRectOffset = Vector2.new(0, 0)
+    arc.Rotation = 0
+
+    -- Скрываем основной круг, оставляем только дугу
+    loadingCircle.BackgroundTransparency = 1
+
+    -- Анимация загрузки будет вращать mask (или arc)
     local rotationSpeed = 5
     local currentRotation = 0
     local progress = 0
@@ -89,8 +117,8 @@ local function visual()
                 currentRotation = 0
             end
             
-            -- Обновление прогресса
-            progress = progress + 0.5
+            -- Обновление прогресса (4 минуты = 240 секунд)
+            progress = progress + 0.0417 -- 100% за 240 секунд (4 минуты)
             percentText.Text = math.floor(progress) .. "%"
             progressBar.Size = UDim2.new(progress/100, 0, 1, 0)
             
@@ -103,7 +131,7 @@ local function visual()
                 progressBar.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый
             end
             
-            wait(0.05)
+            wait(0.1) -- Увеличил интервал для более плавной анимации
         end
         
         -- Загрузка завершена
