@@ -59,63 +59,30 @@ local function visual()
     progressBar.ZIndex = 3
     progressBar.Parent = progressBg
     
-    -- Вращающийся индикатор загрузки
-    local loadingCircle = Instance.new("Frame")
-    loadingCircle.Name = "LoadingCircle"
-    loadingCircle.Size = UDim2.new(0, 80, 0, 80)
-    loadingCircle.Position = UDim2.new(0.5, -40, 0.6, 0)
-    loadingCircle.BackgroundColor3 = Color3.new(1, 1, 1)
-    loadingCircle.BorderSizePixel = 0
-    loadingCircle.ZIndex = 2
-    loadingCircle.Parent = screenGui
+    -- Создаем спиннер загрузки
+    local spinner = Instance.new("ImageLabel")
+    spinner.Size = UDim2.new(0, 80, 0, 80)
+    spinner.BackgroundTransparency = 1
+    spinner.Image = "rbxassetid://11372558769" -- иконка загрузки
+    spinner.ImageColor3 = Color3.new(1, 1, 1) -- белый
+    spinner.AnchorPoint = Vector2.new(0.5, 0.5)
+    spinner.Position = UDim2.new(0.5, 0, 0.6, 0) -- под прогресс-баром
+    spinner.ZIndex = 2
+    spinner.Parent = screenGui
 
-    -- Делаем кружок круглым
-    -- Делаем кружок круглым
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(1, 0)
-    corner.Parent = loadingCircle
+    -- Кручение спиннера
+    local RunService = game:GetService("RunService")
+    local rotationSpeed = 180 -- градусов в секунду
 
-    -- Создаем маску для "отрезания" 70% круга
-    local mask = Instance.new("Frame")
-    mask.Size = UDim2.new(1, 0, 1, 0)
-    mask.Position = UDim2.new(0, 0, 0, 0)
-    mask.BackgroundTransparency = 1
-    mask.ClipsDescendants = true
-    mask.ZIndex = loadingCircle.ZIndex + 1
-    mask.Parent = loadingCircle
+    RunService.RenderStepped:Connect(function(dt)
+        spinner.Rotation = spinner.Rotation + rotationSpeed * dt
+    end)
 
-    -- Создаем белую дугу (30% круга)
-    local arc = Instance.new("ImageLabel")
-    arc.Size = UDim2.new(1, 0, 1, 0)
-    arc.Position = UDim2.new(0, 0, 0, 0)
-    arc.BackgroundTransparency = 1
-    arc.Image = "rbxassetid://4918373417" -- стандартная дуга (arc) из Roblox Library
-    arc.ImageColor3 = Color3.new(1, 1, 1)
-    arc.ZIndex = mask.ZIndex + 1
-    arc.Parent = mask
-
-    -- Настроим дугу на 30% (108 градусов)
-    arc.ImageRectSize = Vector2.new(360, 360)
-    arc.ImageRectOffset = Vector2.new(0, 0)
-    arc.Rotation = 0
-
-    -- Скрываем основной круг, оставляем только дугу
-    loadingCircle.BackgroundTransparency = 1
-
-    -- Анимация загрузки будет вращать mask (или arc)
-    local rotationSpeed = 5
-    local currentRotation = 0
+    -- Анимация загрузки
     local progress = 0
 
     spawn(function()
         while progress < 100 do
-            -- Вращение кружка
-            currentRotation = currentRotation + rotationSpeed
-            loadingCircle.Rotation = currentRotation
-            
-            if currentRotation >= 360 then
-                currentRotation = 0
-            end
             
             -- Обновление прогресса (4 минуты = 240 секунд)
             progress = progress + 0.0417 -- 100% за 240 секунд (4 минуты)
@@ -145,7 +112,7 @@ local function visual()
         loadingText.Visible = false
         percentText.Visible = false
         progressBg.Visible = false
-        loadingCircle.Visible = false
+        spinner.Visible = false
     end)
     
     local CAS = game:GetService("ContextActionService")
