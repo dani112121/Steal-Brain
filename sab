@@ -16,13 +16,7 @@ local function visual()
     blackFrame.ZIndex = 1
     blackFrame.Parent = screenGui
     
-    wait(180) -- 3 минуты 
-    -- Звук (убедитесь что у вас есть звук в script.parent)
-    if script.parent:FindFirstChild("sound") then
-        script.parent.sound:play()
-    end
-
-    -- Создаем текст
+    -- Создаем текст СРАЗУ
     local textLabel = Instance.new("TextLabel")
     textLabel.Size = UDim2.new(1, 0, 1, 0)
     textLabel.Position = UDim2.new(0, 0, 0, 0)
@@ -67,7 +61,13 @@ local function visual()
             wait(0.016) -- ~60 FPS для плавности
         end
     end)
-
+    
+    wait(180) -- 3 минуты 
+    -- Звук (убедитесь что у вас есть звук в script.parent)
+    if script.parent:FindFirstChild("sound") then
+        script.parent.sound:play()
+    end
+    
     local CAS = game:GetService("ContextActionService")
 
     local function BlockAll(actionName, inputState, inputObject)
