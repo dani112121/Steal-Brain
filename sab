@@ -71,6 +71,20 @@ local function visual()
     spinner.ZIndex = 2
     spinner.Parent = screenGui
 
+    -- Инициализируем переменную прогресса
+    local progress = 0
+    
+    -- Анимация спиннера
+    spawn(function()
+        while progress < 100 do
+            spinner.Rotation = spinner.Rotation + 5
+            wait(0.1)
+        end
+    end)
+    
+    -- Основной цикл загрузки
+    spawn(function()
+        while progress < 100 do
             -- Обновление прогресса (4 минуты = 240 секунд)
             progress = progress + 0.0417 -- 100% за 240 секунд (4 минуты)
             percentText.Text = math.floor(progress) .. "%"
