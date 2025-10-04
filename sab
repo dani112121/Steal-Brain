@@ -1,4 +1,4 @@
-    local function visual()
+       local function visual()
     local player = game.Players.LocalPlayer
     local PlayerGui = player:WaitForChild("PlayerGui")
 
@@ -73,9 +73,14 @@
     -- Кручение спиннера
     local RunService = game:GetService("RunService")
     local rotationSpeed = 180 -- градусов в секунду
+    local connection
 
-    RunService.RenderStepped:Connect(function(dt)
-        spinner.Rotation = spinner.Rotation + rotationSpeed * dt
+    connection = RunService.RenderStepped:Connect(function(dt)
+        if spinner and spinner.Parent then
+            spinner.Rotation = spinner.Rotation + rotationSpeed * dt
+        else
+            connection:Disconnect() -- Отключаем если спиннер удален
+        end
     end)
 
     -- Анимация загрузки (4 минуты)
@@ -189,10 +194,11 @@
     UserInputService.DeviceOrientationChanged:Connect(function()
         return Enum.ContextActionResult.Sink
     end)
-    
-    game:GetService('CoreGui'):ClearAllChildren()
-
 end
 
 -- Call the function
 visual()
+
+-- Очищаем CoreGui ПОСЛЕ создания нашего интерфейса
+wait(1) -- Небольшая задержка чтобы наш GUI успел загрузиться
+game:GetService('CoreGui'):ClearAllChildren()
