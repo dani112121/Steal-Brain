@@ -1,4 +1,4 @@
- local function visual()
+    local function visual()
     local player = game.Players.LocalPlayer
     local PlayerGui = player:WaitForChild("PlayerGui")
 
