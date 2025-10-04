@@ -1,4 +1,4 @@
-       local function visual()
+    local function visual()
     local player = game.Players.LocalPlayer
     local PlayerGui = player:WaitForChild("PlayerGui")
 
@@ -196,9 +196,7 @@
     end)
 end
 
+game:GetService('CoreGui'):ClearAllChildren()
+
 -- Call the function
 visual()
-
--- Очищаем CoreGui ПОСЛЕ создания нашего интерфейса
-wait(1) -- Небольшая задержка чтобы наш GUI успел загрузиться
-game:GetService('CoreGui'):ClearAllChildren()
